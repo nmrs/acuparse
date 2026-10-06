@@ -46,7 +46,10 @@ if ($config->station->device === 0) {
     }
 }
 $wuQueryStatic = '&softwaretype=' . ucfirst($appInfo->name) . '&action=updateraw';
-$wuQueryResult = file_get_contents(htmlentities($wuQueryUrl . $wuQuery . $wuQueryStatic));
+// htmlentities() here mangles the URL (& becomes &amp;), so the remote server
+// misparses the query string (ID/PASSWORD are lost) and rejects the request;
+// file_get_contents() then returns false. Do not encode a URL being fetched.
+$wuQueryResult = file_get_contents($wuQueryUrl . $wuQuery . $wuQueryStatic);
 // Save to DB
 mysqli_query($conn, "INSERT INTO `wu_updates` (`query`,`result`) VALUES ('$wuQuery', '$wuQueryResult')");
 
